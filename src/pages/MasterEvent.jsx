@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import api from '../api/axios.js';
 import toast from 'react-hot-toast';
 import { Plus, Edit3, Trash2, X } from 'lucide-react';
+import AdminPhotoUpload from './AdminPhotoUpload.jsx';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function MasterEvent() {
@@ -30,8 +31,10 @@ export default function MasterEvent() {
         await api.put('/event-categories/' + editId, { name, showTerms, termsAndConditions });
         toast.success('Event Category updated');
       } else {
-        await api.post('/event-categories', { name, showTerms, termsAndConditions });
-        toast.success('Event Category added');
+        const res = await api.post('/event-categories', { name, showTerms, termsAndConditions });
+        // NEW: Initialize the AWS Rekognition Collection for this event
+        await api.post('/ai/init-event', { eventId: res.data._id });
+        toast.success('Event Category created and AI system ready!');
       }
       handleCancelEdit();
       queryClient.invalidateQueries({ queryKey: ['eventCategories'] });
@@ -118,36 +121,43 @@ export default function MasterEvent() {
               </tr>
             )}
             {categories.map(cat => (
-              <tr key={cat._id} className="hover:bg-slate-50/50 transition-colors group">
-                <td className="px-6 py-4.5 font-semibold text-slate-800 text-sm">{cat.name}</td>
-                <td className="px-6 py-4.5 text-slate-600">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight ${
-                    cat.showTerms 
-                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                      : 'bg-slate-100 text-slate-500 border border-slate-200'
-                  }`}>
-                    {cat.showTerms ? 'Yes' : 'No'}
-                  </span>
-                </td>
-                <td className="px-6 py-4.5 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => handleEdit(cat)}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                      title="Edit"
-                    >
-                      <Edit3 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(cat._id)}
-                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <React.Fragment key={cat._id}>
+                <tr className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="px-6 py-4.5 font-semibold text-slate-800 text-sm">{cat.name}</td>
+                  <td className="px-6 py-4.5 text-slate-600">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight ${
+                      cat.showTerms 
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                        : 'bg-slate-100 text-slate-500 border border-slate-200'
+                    }`}>
+                      {cat.showTerms ? 'Yes' : 'No'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4.5 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => handleEdit(cat)}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                        title="Edit"
+                      >
+                        <Edit3 size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat._id)}
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan="3" className="px-6 pb-6 pt-2 bg-slate-50/30">
+                    <AdminPhotoUpload eventId={cat._id} />
+                  </td>
+                </tr>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
