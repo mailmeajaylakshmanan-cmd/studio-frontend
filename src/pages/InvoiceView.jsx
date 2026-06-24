@@ -8,6 +8,8 @@ import {
 import api from '../api/axios.js';
 import toast from 'react-hot-toast';
 import clikzLogo from '../assets/clikz_logo.png';
+import AdminPhotoUpload from './AdminPhotoUpload';
+import EventQRCode from '../components/EventQRCode';
 // ─── color palette ───────────────────────────────────────────────────────────
 const C = {
   navy: '#0d1b2a',
@@ -368,6 +370,20 @@ export default function InvoiceView() {
           <span>Thank you for choosing <strong style={{ color: C.white }}>CLIKZ Wedding Films</strong> — we're honoured to be part of your story.</span>
         </div>
       </div>
+      
+      {/* AI Gallery and QR Code Section */}
+      <div className="print:hidden grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 max-w-[780px] mx-auto">
+        {/* Left: AI Upload Section */}
+        <div className="lg:col-span-2">
+            <AdminPhotoUpload eventId={invoice._id} />
+        </div>
+
+        {/* Right: QR Code for the Client */}
+        <div className="lg:col-span-1">
+            <EventQRCode eventId={invoice._id} eventName={invoice.customer.name} />
+        </div>
+      </div>
+
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @media (max-width: 560px) {
