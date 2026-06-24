@@ -11,6 +11,7 @@ import MasterEvent from './pages/MasterEvent.jsx';
 import MasterService from './pages/MasterService.jsx';
 import MasterCustomer from './pages/MasterCustomer.jsx';
 import MasterCrew from './pages/MasterCrew.jsx';
+import FindMyPhotos from './pages/FindMyPhotos.jsx';
 
 function PrivateRoute({ children }) {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -21,6 +22,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/find-my-photos" element={<FindMyPhotos />} />
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="invoices" element={<InvoiceList />} />
